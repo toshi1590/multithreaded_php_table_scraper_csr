@@ -1,0 +1,44 @@
+.hide {
+  display: none;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
+  background-image: url('https://www.benricho.org/loading_images/img-transparent/724-88.gif');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-size: 150px 150px;
+}
+
+a:link, a:visited, a:hover, a:active{
+  text-decoration:none;
+  color: black;
+}
+
+li.first, li.prev, li.page, li.next, li.last, li.pageNumbers{
+  cursor: pointer;
+  border: solid 1px;
+  padding: 8px;
+}
+
+.sort{
+  cursor: pointer;
+}
+
+.sort.desc:after {
+  content: "(asc)";
+  margin-left: 5px;
+  color: red;
+}
+
+.sort.asc:after {
+  content: "(desc)";
+  margin-left: 5px;
+  color: red;
+}
