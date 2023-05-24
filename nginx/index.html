@@ -1,97 +1,115 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link rel="stylesheet" href="index.css">
-  </head>
-  <body class="m-1">
-    <header class="text-center mb-5">
-      <h1>Table data scraping</h1>
-    </header>
 
-    <form class="mb-5" id="scraping_form">
-      <div class="mb-5" id="url_section">
-        <label class="mb-1">
-          <b>url</b>
-        </label>
-        <input type="text" name="url" class="form-control" placeholder="e.g. https://www.example.com" required>
-      </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+  <link rel="stylesheet" href="index.css">
+</head>
 
-      <div class="mb-5" id="ajax_section">
-        <label class="mb-1" id="title_of_ajax_section">
-          <b>ajax</b>
-          <button type="button" class="btn btn-primary" onclick="create_ajax_inputs(this)">use</button>
-        </label>
-        <div id="ajax_inputs"></div>
-      </div>
+<body class="m-1">
+  <header class="text-center mb-5">
+    <h1>Table data scraping from CSR pages</h1>
+  </header>
 
-      <div class="mb-5" id="column_numbers_to_scrape_section">
-        <label class="mb-1">
-          <b>column to scrape</b>
-          <button type="button" class="btn btn-primary" id="add_btn_for_column_numbers_to_scrape">add</button>
-        </label>
-        <table class="table" id="table_for_column_numbers_to_scrape">
-          <tbody id="tbody_of_table_for_column_numbers_to_scrape">
-            <tr>
-              <td>column number</td>
-              <td>title</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <input type="number" class="form-control" name="column_numbers_to_scrape[]" placeholder="e.g. 1" min="1" step="1" required>
-              </td>
-              <td>
-                <input type="text" class="form-control" name="titles[]" placeholder="e.g. price" required>
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <form class="mb-5" id="scraping_form">
+    <div class="mb-5" id="url_section">
+      <label class="mb-1">
+        <b>url</b>
+      </label>
+      <input type="text" name="url" class="form-control" placeholder="e.g. https://www.example.com" required>
+    </div>
 
-      <div class="mb-5" id="rows_section">
-        <label class="mb-1">
-          <b>the number of rows</b>
-        </label>
-        <input type="number" class="form-control" name="rows" placeholder="e.g. 1" min="1" step="1" required>
-      </div>
+    <div class="mb-5" id="ajax_section">
+      <label class="mb-1" id="title_of_ajax_section">
+        <b>ajax</b>
+        <button type="button" class="btn btn-primary" onclick="create_ajax_inputs(this)">use</button>
+      </label>
+      <div id="ajax_inputs"></div>
+    </div>
 
-      <div class="mb-5" id="column_numbers_to_click_section">
-        <label id="column_numbers_to_click_label" class="mb-1">
-          <b>elements to scrape on derived pages</b>
-          <button type="button" class="btn btn-primary" onclick="create_column_numbers_to_click_table(this)">add</button>
-        </label>
-      </div>
+    <div class="mb-5" id="section_for_xpath_of_table">
+      <label class="mb-1">
+        <b>xpath of table</b>
+      </label>
+      <input type="text" class="form-control" name="xpath_of_table" placeholder="e.g. /html/body/div/table" required>
+    </div>
 
-      <div class="mb-5" id="pagination_section">
-        <label class="mb-1" id="title_of_pagination_section">
-          <b>pagination</b>
-          <button type="button" class="btn btn-primary" onclick="create_pagination_inputs(this)">use</button>
-        </label>
-        <div id="pagination_inputs"></div>
-      </div>
+    <div class="mb-5" id="column_numbers_to_scrape_section">
+      <label class="mb-1">
+        <b>column to scrape</b>
+        <button type="button" class="btn btn-primary" id="add_btn_for_column_numbers_to_scrape">add</button>
+      </label>
+      <table class="table" id="table_for_column_numbers_to_scrape">
+        <tbody id="tbody_of_table_for_column_numbers_to_scrape">
+          <tr>
+            <td>column number</td>
+            <td>title</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>
+              <input type="number" class="form-control" name="column_numbers_to_scrape[]" placeholder="e.g. 1" min="1"
+                step="1" required>
+            </td>
+            <td>
+              <input type="text" class="form-control" name="titles[]" placeholder="e.g. price" required>
+            </td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <button type="button" class="btn btn-success" id="start_scraping_btn">start scraping</button>
-    </form>
+    <div class="mb-5" id="rows_section">
+      <label class="mb-1">
+        <b>the number of rows</b>
+      </label>
+      <input type="number" class="form-control" name="rows" placeholder="e.g. 1" min="1" step="1" required>
+    </div>
 
-    <div id="result_table_section"></div>
+    <div class="mb-5" id="column_numbers_to_click_section">
+      <label id="column_numbers_to_click_label" class="mb-1">
+        <b>elements to scrape on derived pages</b>
+        <button type="button" class="btn btn-primary" onclick="create_column_numbers_to_click_table(this)">add</button>
+      </label>
+    </div>
 
-    <div class="loading hide"></div>
+    <div class="mb-5" id="pagination_section">
+      <label class="mb-1" id="title_of_pagination_section">
+        <b>pagination</b>
+        <button type="button" class="btn btn-primary" onclick="create_pagination_inputs(this)">use</button>
+      </label>
+      <div id="pagination_inputs"></div>
+    </div>
 
-    <form id="chart_form"></form>
-    <div id="chart_section"></div>
+    <button type="button" class="btn btn-success" id="start_scraping_btn">start scraping</button>
+  </form>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="paginathing.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
-    <script src="background_colors.js"></script>
-    <script src="common_functions.js"></script>
-    <script src="index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js" integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous"></script>
-  </body>
+  <div id="result_table_section"></div>
+
+  <div class="loading hide"></div>
+
+  <form id="chart_form"></form>
+  <div id="chart_section"></div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+  <script src="./paginathing.js"></script>
+  <script src="./background_colors.js"></script>
+  <script src="./common_functions.js"></script>
+  <script src="index.js"></script>
+  <script src="./result_table.js"></script>
+  <script src="./chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"
+    integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/"
+    crossorigin="anonymous"></script>
+</body>
+
 </html>

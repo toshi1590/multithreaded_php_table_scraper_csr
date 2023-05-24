@@ -11,3 +11,6 @@ RUN apt-get install unzip -y && \
     cd /usr/local/bin && \
     unzip /usr/local/bin/chromedriver_linux64.zip && \
     chmod +x /usr/local/bin/chromedriver
+
+RUN cat /usr/local/etc/php/php.ini-development > /usr/local/etc/php/php.ini && \
+    sed "s/max_execution_time = [0-9]\+/max_execution_time = 3600/" /usr/local/etc/php/php.ini -i
