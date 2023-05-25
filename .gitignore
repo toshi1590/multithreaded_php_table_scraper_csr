@@ -1,1 +1,2 @@
-ztsphp/ssr/scraping.php
+#The content of this file changes every time test is executed.
+ztsphp/vendor/bin/.phpunit.result.cache
