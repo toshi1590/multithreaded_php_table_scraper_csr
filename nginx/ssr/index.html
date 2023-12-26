@@ -8,7 +8,7 @@
   </head>
   <body class="m-1">
     <header class="text-center mb-5">
-      <h1>Table data scraping</h1>
+      <h1>Table data scraping from SSR pages</h1>
     </header>
 
     <form class="mb-5" action="/ssr/redirect.php" method="post">
@@ -17,10 +17,16 @@
           <b>url</b>
         </label>
     	  <ul>
-          <li>http://stats.areppim.com/listes/list_billionairesx21xwor.htm</li>
           <li>https://finance.yahoo.co.jp/stocks/ranking/up?market=all&term=daily&page=1</li>
 	      </ul>
         <input type="text" class="form-control" name="url" placeholder="e.g. https://www.example.com" required>
+      </div>
+
+      <div class="mb-5" id="section_for_xpath_of_table">
+        <label class="mb-1">
+          <b>xpath of table</b>
+        </label>
+        <input type="text" class="form-control" name="xpath_of_table" placeholder="e.g. /html/body/div" required>
       </div>
 
       <div class="mb-5" id="section_for_column_numbers_to_scrape">

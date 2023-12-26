@@ -1,6 +1,8 @@
 <?php
 $url = $_POST['url'];
 
+$xpath_of_table = $_POST['xpath_of_table'];
+
 $column_numbers_to_scrape_str = implode(', ', $_POST['column_numbers_to_scrape']);
 $column_numbers_to_scrape = '[' . $column_numbers_to_scrape_str . ']';
 
@@ -32,6 +34,6 @@ if ($xpath_of_a != 'null') {
   $number_of_hrefs = '0';
 }
 
-exec("bash create.sh '$url' '$column_numbers_to_scrape' '$titles' '$rows' '$xpath_of_a' '$xpaths_to_scrape_in_a_new_page' '$parameter' '$pages' '$number_of_hrefs'");
+exec("bash create.sh '$url' '$xpath_of_table' '$column_numbers_to_scrape' '$titles' '$rows' '$xpath_of_a' '$xpaths_to_scrape_in_a_new_page' '$parameter' '$pages' '$number_of_hrefs'");
 
 header('Location: /ssr/scraping.php');

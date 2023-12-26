@@ -1,13 +1,14 @@
 {
   echo "<?php"
   echo "\$url = '$1';"
-  echo "\$column_numbers_to_scrape = $2;"
-  echo "\$titles = $3;"
-  echo "\$rows = $4;"
-  echo "\$xpath_of_a = '$5';"
-  echo "\$xpaths_to_scrape_in_a_new_page = $6;"
-  echo "\$parameter = '$7';"
-  echo "\$pages = $8;"
+  echo "\$xpath_of_table = '$2';"
+  echo "\$column_numbers_to_scrape = $3;"
+  echo "\$titles = $4;"
+  echo "\$rows = $5;"
+  echo "\$xpath_of_a = '$6';"
+  echo "\$xpaths_to_scrape_in_a_new_page = $7;"
+  echo "\$parameter = '$8';"
+  echo "\$pages = $9;"
   echo "\$urls = [];"
   echo "\$html = file_get_contents(\$url);"
   echo "\$dom = new DOMDocument();"
@@ -36,10 +37,10 @@
   echo ""
 } > scraping.php
 
-for i in `seq $8`
+for i in `seq $9`
 do
   {
-    echo "\$future${i} = \$runtime${i}->run(function(\$url, \$column_numbers_to_scrape, \$rows, \$xpath_of_a){"
+    echo "\$future${i} = \$runtime${i}->run(function(\$url, \$xpath_of_table, \$column_numbers_to_scrape, \$rows, \$xpath_of_a){"
     echo "  \$html = file_get_contents(\$url);"
     echo "  \$dom = new DOMDocument();"
     echo "  @\$dom->loadHTML(\$html);"
@@ -53,10 +54,10 @@ do
     echo "      \$tr_tds = [];"
     echo "      "
     echo "      for (\$j = 0; \$j < count(\$column_numbers_to_scrape); \$j++) {"
-    echo "        if (\$xpath->query(\"//tr[\$i]/td[\$column_numbers_to_scrape[\$j]]\")->item(0) == null) {"
+    echo "        if (\$xpath->query(\$xpath_of_table . \"/tbody/tr[\$i]/td[\$column_numbers_to_scrape[\$j]]\")->item(0) == null) {"
     echo "          continue 2;"
     echo "        } else {"
-    echo "          array_push(\$tr_tds, \$xpath->query(\"//tr[\$i]/td[\$column_numbers_to_scrape[\$j]]\")->item(0)->nodeValue);"
+    echo "          array_push(\$tr_tds, \$xpath->query(\$xpath_of_table . \"/tbody/tr[\$i]/td[\$column_numbers_to_scrape[\$j]]\")->item(0)->nodeValue);"
     echo "        }"
     echo "      }"
     echo ""
@@ -79,7 +80,7 @@ do
     echo "  array_push(\$data_hrefs, \$hrefs);"
     echo ""
     echo "  return \$data_hrefs;"
-    echo "}, array(\$urls[$(echo $(($i - 1)))], \$column_numbers_to_scrape, \$rows, \$xpath_of_a));"
+    echo "}, array(\$urls[$(echo $(($i - 1)))], \$xpath_of_table, \$column_numbers_to_scrape, \$rows, \$xpath_of_a));"
     echo ""
   } >> scraping.php
 done
@@ -93,7 +94,7 @@ done
 } >> scraping.php
 
 
-if [ $9 -gt 0 ]; then
+if [ ${10} -gt 0 ]; then
   {
     echo "for (\$i = 1; \$i <= count(\$hrefs); \$i++) {"
     echo "  \${'href_runtime'.\$i} = new \parallel\Runtime();"
@@ -102,7 +103,7 @@ if [ $9 -gt 0 ]; then
   } >> scraping.php
 fi
 
-for i in `seq $9`
+for i in `seq ${10}`
 do
   {
     echo "\$href_future${i} = \$href_runtime${i}->run(function(\$href, \$xpaths_to_scrape_in_a_new_page){"
@@ -124,7 +125,7 @@ do
 done
 
 
-if [ $9 -gt 0 ]; then
+if [ ${10} -gt 0 ]; then
   {
     echo "for (\$i = 1; \$i < count(\$data); \$i++) {"
     echo "  for (\$j = 0; \$j < count(\${'href_future'.\$i}->value()); \$j++) {"
