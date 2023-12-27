@@ -11,6 +11,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\WebDriverCurlException;
 
 $data = [];
+
 $url = $_POST['url'];
 
 if (!empty($_POST['xpath_of_ajax_btn'])) {
@@ -22,6 +23,7 @@ if (!empty($_POST['xpath_of_ajax_btn'])) {
 $xpath_of_table = $_POST['xpath_of_table'];
 
 $column_numbers_to_scrape = $_POST['column_numbers_to_scrape'];
+
 $titles = $_POST['titles'];
 
 if (!empty($_POST['xpath_of_a'])) {
@@ -50,21 +52,19 @@ if (!empty($_POST['pages'])) {
   $pages = 1;
 }
 
-//
-$shou = floor(($pages / 5));
-$amari = ($pages % 5);
+$quotient = floor(($pages / 5));
+$remainder = ($pages % 5);
 $page_moving_times_in_5_threads = [];
 
 for ($i = 1; $i <= 5; $i++) {
-  if ($amari >= $i) {
-    array_push($page_moving_times_in_5_threads, $shou);
+  if ($remainder >= $i) {
+    array_push($page_moving_times_in_5_threads, $quotient);
   } else {
-    array_push($page_moving_times_in_5_threads, ($shou - 1));
+    array_push($page_moving_times_in_5_threads, ($quotient - 1));
   }
 }
-//
 
-array_push($data,$_POST['titles']);
+array_push($data, $_POST['titles']);
 
 for ($i = 1; $i <= $pages; $i++) {
   ${'runtime'.$i} = new \parallel\Runtime();
@@ -75,17 +75,13 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
   require_once 'vendor/autoload.php';
 
   $host = 'http://selenium-hub:4444/wd/hub';
-  $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+  $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome(), 3600000, 3600000);
   $driver->get($url);
 
-
-  //
   if (!is_null($xpath_of_ajax_btn)) {
     $ajax_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_ajax_btn));
     $ajax_btn->click();
   }
-  //
-
 
   $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
   $scraped_data = [];
@@ -97,8 +93,8 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
         $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
         $next_btn->click();
       }
+
       $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-      sleep(20);
     }
 
     for ($j = 1; $j <= $rows; $j++) {
@@ -117,7 +113,6 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
 
       if ($Is_this_td_row == 'y') {
         if (!is_null($xpath_of_a)) {
-
           $xpath_of_element_to_click_in_the_table = preg_replace('/tr\[[0-9]+\]/', "tr[$j]", $xpath_of_a); // change tr[x] to tr[$j]
           preg_match('/td\[[0-9]+\]/', $xpath_of_element_to_click_in_the_table, $td); // extract td[x]
           $xpath_of_element_to_click_in_the_table = strstr($xpath_of_element_to_click_in_the_table, 'td', true); // remove td[x]...
@@ -127,9 +122,8 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
 
           sleep(10);
 
-          // angular text comes first, then simple text comes second (In case of vice versa, angular text is extracted as empty)
           for ($l=0; $l < count($xpaths_to_scrape_in_a_new_page); $l++) {
-            try {
+            try { // for NZDIS
               $angular_text = $driver->executeScript("
                 var script = document.createElement('script');
                 script.src = 'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js';
@@ -141,7 +135,6 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
               array_push($scraped_row_data, $angular_text);
             }
             catch (UnexpectedJavascriptException $e) {
-              // for simple text
               $xpath_to_scrape = $driver->findElement(WebDriverBy::xpath($xpaths_to_scrape_in_a_new_page[$l]));
               array_push($scraped_row_data, $xpath_to_scrape->getText());
             }
@@ -152,8 +145,6 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
 
           $driver->navigate()->back();
           $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-          sleep(10);
-
         }
 
         array_push($scraped_data, $scraped_row_data);
@@ -161,18 +152,17 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
     }
   }
 
+  $driver->quit();
+
   return $scraped_data;
 }, array($url, $xpath_of_ajax_btn, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[0]));
-
-
-
 
 
 if ($pages >= 2) {
   $future2 = $runtime2->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
-    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome(), 3600000, 3600000);
     $driver->get($url);
     $scraped_data = [];
 
@@ -183,16 +173,16 @@ if ($pages >= 2) {
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
           $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       }
 
       for ($j = 1; $j <= $rows; $j++) {
@@ -211,7 +201,6 @@ if ($pages >= 2) {
 
         if ($Is_this_td_row == 'y') {
           if (!is_null($xpath_of_a)) {
-
             $xpath_of_element_to_click_in_the_table = preg_replace('/tr\[[0-9]+\]/', "tr[$j]", $xpath_of_a); // change tr[x] to tr[$j]
             preg_match('/td\[[0-9]+\]/', $xpath_of_element_to_click_in_the_table, $td); // extract td[x]
             $xpath_of_element_to_click_in_the_table = strstr($xpath_of_element_to_click_in_the_table, 'td', true); // remove td[x]...
@@ -221,9 +210,8 @@ if ($pages >= 2) {
 
             sleep(10);
 
-            // angular text comes first, then simple text comes second (In case of vice versa, angular text is extracted as empty)
             for ($l=0; $l < count($xpaths_to_scrape_in_a_new_page); $l++) {
-              try {
+              try { // for NZDIS
                 $angular_text = $driver->executeScript("
                   var script = document.createElement('script');
                   script.src = 'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js';
@@ -235,7 +223,6 @@ if ($pages >= 2) {
                 array_push($scraped_row_data, $angular_text);
               }
               catch (UnexpectedJavascriptException $e) {
-                // for simple text
                 $xpath_to_scrape = $driver->findElement(WebDriverBy::xpath($xpaths_to_scrape_in_a_new_page[$l]));
                 array_push($scraped_row_data, $xpath_to_scrape->getText());
               }
@@ -246,8 +233,6 @@ if ($pages >= 2) {
 
             $driver->navigate()->back();
             $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-            sleep(10);
-
           }
 
           array_push($scraped_data, $scraped_row_data);
@@ -255,19 +240,18 @@ if ($pages >= 2) {
       }
     }
 
+    $driver->quit();
+
     return $scraped_data;
   }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[1]));
 }
-
-
-
 
 
 if ($pages >= 3) {
   $future3 = $runtime3->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
-    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome(), 3600000, 3600000);
     $driver->get($url);
     $scraped_data = [];
 
@@ -278,16 +262,16 @@ if ($pages >= 3) {
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
           $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       }
 
       for ($j = 1; $j <= $rows; $j++) {
@@ -306,7 +290,6 @@ if ($pages >= 3) {
 
         if ($Is_this_td_row == 'y') {
           if (!is_null($xpath_of_a)) {
-
             $xpath_of_element_to_click_in_the_table = preg_replace('/tr\[[0-9]+\]/', "tr[$j]", $xpath_of_a); // change tr[x] to tr[$j]
             preg_match('/td\[[0-9]+\]/', $xpath_of_element_to_click_in_the_table, $td); // extract td[x]
             $xpath_of_element_to_click_in_the_table = strstr($xpath_of_element_to_click_in_the_table, 'td', true); // remove td[x]...
@@ -316,9 +299,8 @@ if ($pages >= 3) {
 
             sleep(10);
 
-            // angular text comes first, then simple text comes second (In case of vice versa, angular text is extracted as empty)
             for ($l=0; $l < count($xpaths_to_scrape_in_a_new_page); $l++) {
-              try {
+              try { // for NZDIS
                 $angular_text = $driver->executeScript("
                   var script = document.createElement('script');
                   script.src = 'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js';
@@ -330,7 +312,6 @@ if ($pages >= 3) {
                 array_push($scraped_row_data, $angular_text);
               }
               catch (UnexpectedJavascriptException $e) {
-                // for simple text
                 $xpath_to_scrape = $driver->findElement(WebDriverBy::xpath($xpaths_to_scrape_in_a_new_page[$l]));
                 array_push($scraped_row_data, $xpath_to_scrape->getText());
               }
@@ -341,7 +322,6 @@ if ($pages >= 3) {
 
             $driver->navigate()->back();
             $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-            sleep(10);
           }
 
           array_push($scraped_data, $scraped_row_data);
@@ -349,19 +329,18 @@ if ($pages >= 3) {
       }
     }
 
+    $driver->quit();
+
     return $scraped_data;
   }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
 }
-
-
-
 
 
 if ($pages >= 4) {
   $future4 = $runtime4->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
-    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome(), 3600000, 3600000);
     $driver->get($url);
     $scraped_data = [];
 
@@ -372,16 +351,16 @@ if ($pages >= 4) {
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
           $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       }
 
       for ($j = 1; $j <= $rows; $j++) {
@@ -400,7 +379,6 @@ if ($pages >= 4) {
 
         if ($Is_this_td_row == 'y') {
           if (!is_null($xpath_of_a)) {
-
             $xpath_of_element_to_click_in_the_table = preg_replace('/tr\[[0-9]+\]/', "tr[$j]", $xpath_of_a); // change tr[x] to tr[$j]
             preg_match('/td\[[0-9]+\]/', $xpath_of_element_to_click_in_the_table, $td); // extract td[x]
             $xpath_of_element_to_click_in_the_table = strstr($xpath_of_element_to_click_in_the_table, 'td', true); // remove td[x]...
@@ -410,9 +388,8 @@ if ($pages >= 4) {
 
             sleep(10);
 
-            // angular text comes first, then simple text comes second (In case of vice versa, angular text is extracted as empty)
             for ($l=0; $l < count($xpaths_to_scrape_in_a_new_page); $l++) {
-              try {
+              try { // for NZDIS
                 $angular_text = $driver->executeScript("
                   var script = document.createElement('script');
                   script.src = 'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js';
@@ -424,7 +401,6 @@ if ($pages >= 4) {
                 array_push($scraped_row_data, $angular_text);
               }
               catch (UnexpectedJavascriptException $e) {
-                // for simple text
                 $xpath_to_scrape = $driver->findElement(WebDriverBy::xpath($xpaths_to_scrape_in_a_new_page[$l]));
                 array_push($scraped_row_data, $xpath_to_scrape->getText());
               }
@@ -435,8 +411,6 @@ if ($pages >= 4) {
 
             $driver->navigate()->back();
             $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-            sleep(10);
-
           }
 
           array_push($scraped_data, $scraped_row_data);
@@ -444,20 +418,18 @@ if ($pages >= 4) {
       }
     }
 
+    $driver->quit();
+
     return $scraped_data;
   }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
 }
-
-
-
-
 
 
 if ($pages >= 5) {
   $future5 = $runtime5->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
-    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
+    $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome(), 3600000, 3600000);
     $driver->get($url);
     $scraped_data = [];
 
@@ -468,16 +440,16 @@ if ($pages >= 5) {
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
           $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
           $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
+
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-        sleep(20);
       }
 
       for ($j = 1; $j <= $rows; $j++) {
@@ -496,7 +468,6 @@ if ($pages >= 5) {
 
         if ($Is_this_td_row == 'y') {
           if (!is_null($xpath_of_a)) {
-
             $xpath_of_element_to_click_in_the_table = preg_replace('/tr\[[0-9]+\]/', "tr[$j]", $xpath_of_a); // change tr[x] to tr[$j]
             preg_match('/td\[[0-9]+\]/', $xpath_of_element_to_click_in_the_table, $td); // extract td[x]
             $xpath_of_element_to_click_in_the_table = strstr($xpath_of_element_to_click_in_the_table, 'td', true); // remove td[x]...
@@ -506,9 +477,8 @@ if ($pages >= 5) {
 
             sleep(10);
 
-            // angular text comes first, then simple text comes second (In case of vice versa, angular text is extracted as empty)
             for ($l=0; $l < count($xpaths_to_scrape_in_a_new_page); $l++) {
-              try {
+              try { // for NZDIS
                 $angular_text = $driver->executeScript("
                   var script = document.createElement('script');
                   script.src = 'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js';
@@ -520,7 +490,6 @@ if ($pages >= 5) {
                 array_push($scraped_row_data, $angular_text);
               }
               catch (UnexpectedJavascriptException $e) {
-                // for simple text
                 $xpath_to_scrape = $driver->findElement(WebDriverBy::xpath($xpaths_to_scrape_in_a_new_page[$l]));
                 array_push($scraped_row_data, $xpath_to_scrape->getText());
               }
@@ -531,14 +500,14 @@ if ($pages >= 5) {
 
             $driver->navigate()->back();
             $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
-            sleep(10);
-
           }
 
           array_push($scraped_data, $scraped_row_data);
         }
       }
     }
+
+    $driver->quit();
 
     return $scraped_data;
   }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
@@ -565,7 +534,6 @@ if ($pages >= 5) {
   $data = array_merge($data, $future5->value());
 }
 
-
 for ($i = 0; $i < count($data); $i++) {
   if ($i == 0) {
     array_unshift($data[$i], 'id');
@@ -574,4 +542,4 @@ for ($i = 0; $i < count($data); $i++) {
   }
 }
 
-echo json_encode($data);
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
