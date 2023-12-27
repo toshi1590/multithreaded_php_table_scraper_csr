@@ -155,7 +155,7 @@ $(function() {
       $('#chart_section').html('');
 
       $.ajax({
-        url: 'http://localhost:81/csr/scraping.php',
+        url: 'http://localhost:81/scraping.php',
         type: 'POST',
         data: $('#scraping_form').serialize(),
         // Until request is completed
