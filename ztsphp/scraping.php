@@ -38,8 +38,10 @@ if (!empty($_POST['xpaths_to_scrape_in_a_new_page'])) {
 
 $rows = $_POST['rows'];
 
-if (!empty($_POST['text_of_next_btn'])) {
-  $text_of_next_btn = $_POST['text_of_next_btn'];
+if (!empty($_POST['xpath_of_next_btn'])) {
+  $xpath_of_next_btn = $_POST['xpath_of_next_btn'];
+} else {
+  $xpath_of_next_btn = null;
 }
 
 if (!empty($_POST['pages'])) {
@@ -69,7 +71,7 @@ for ($i = 1; $i <= $pages; $i++) {
 }
 
 
-$future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times){
+$future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
   require_once 'vendor/autoload.php';
 
   $host = 'http://selenium-hub:4444/wd/hub';
@@ -91,8 +93,8 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
   for ($a = 0; $a < (1 + $page_moving_times); $a++) {
     if ($a != 0) {
       for ($b = 0; $b < 5; $b++) {
-        $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-        $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+        $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+        $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
         $next_btn->click();
       }
       $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
@@ -160,14 +162,14 @@ $future1 = $runtime1->run(function($url, $xpath_of_ajax_btn, $xpath_of_table, $c
   }
 
   return $scraped_data;
-}, array($url, $xpath_of_ajax_btn, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times_in_5_threads[0]));
+}, array($url, $xpath_of_ajax_btn, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[0]));
 
 
 
 
 
 if ($pages >= 2) {
-  $future2 = $runtime2->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times){
+  $future2 = $runtime2->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
     $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
@@ -177,16 +179,16 @@ if ($pages >= 2) {
     for ($a = 0; $a < (1 + $page_moving_times); $a++) {
       if ($a == 0) {
         for ($i = 0; $i < 1; $i++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
         sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
@@ -254,7 +256,7 @@ if ($pages >= 2) {
     }
 
     return $scraped_data;
-  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times_in_5_threads[1]));
+  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[1]));
 }
 
 
@@ -262,7 +264,7 @@ if ($pages >= 2) {
 
 
 if ($pages >= 3) {
-  $future3 = $runtime3->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times){
+  $future3 = $runtime3->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
     $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
@@ -272,16 +274,16 @@ if ($pages >= 3) {
     for ($a = 0; $a < (1 + $page_moving_times); $a++) {
       if ($a == 0) {
         for ($i = 0; $i < 2; $i++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
         sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
@@ -348,7 +350,7 @@ if ($pages >= 3) {
     }
 
     return $scraped_data;
-  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times_in_5_threads[2]));
+  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
 }
 
 
@@ -356,7 +358,7 @@ if ($pages >= 3) {
 
 
 if ($pages >= 4) {
-  $future4 = $runtime4->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times){
+  $future4 = $runtime4->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
     $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
@@ -366,16 +368,16 @@ if ($pages >= 4) {
     for ($a = 0; $a < (1 + $page_moving_times); $a++) {
       if ($a == 0) {
         for ($i = 0; $i < 3; $i++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
         sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
@@ -443,7 +445,7 @@ if ($pages >= 4) {
     }
 
     return $scraped_data;
-  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times_in_5_threads[2]));
+  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
 }
 
 
@@ -452,7 +454,7 @@ if ($pages >= 4) {
 
 
 if ($pages >= 5) {
-  $future5 = $runtime5->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times){
+  $future5 = $runtime5->run(function($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times){
     require_once 'vendor/autoload.php';
     $host = 'http://selenium-hub:4444/wd/hub';
     $driver = RemoteWebDriver::create($host, DesiredCapabilities::chrome());
@@ -462,16 +464,16 @@ if ($pages >= 5) {
     for ($a = 0; $a < (1 + $page_moving_times); $a++) {
       if ($a == 0) {
         for ($i = 0; $i < 4; $i++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
         sleep(20);
       } else {
         for ($b = 0; $b < 5; $b++) {
-          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::linkText($text_of_next_btn)));
-          $next_btn = $driver->findElement(WebDriverBy::linkText($text_of_next_btn));
+          $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath_of_next_btn)));
+          $next_btn = $driver->findElement(WebDriverBy::xpath($xpath_of_next_btn));
           $next_btn->click();
         }
         $driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::tagName('td')));
@@ -539,7 +541,7 @@ if ($pages >= 5) {
     }
 
     return $scraped_data;
-  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $text_of_next_btn, $page_moving_times_in_5_threads[2]));
+  }, array($url, $xpath_of_table, $column_numbers_to_scrape, $xpath_of_a, $xpaths_to_scrape_in_a_new_page, $rows, $xpath_of_next_btn, $page_moving_times_in_5_threads[2]));
 }
 
 
